@@ -42,7 +42,7 @@ export default function HomeScreen() {
       title: 'A Culinary Paradise',
       image: require('@/assets/images/food.jpg'),
       description:
-        `Malaysian food is a delicious fusion of Malay, Chinese, and Indian flavors. From the spicy and aromatic Nasi Lemak to the savory and satisfying Char Kway Teow, there is something to tantalize every taste bud. Don't miss the chance to explore the bustling street food stalls and night markets for an authentic culinary experience.`,
+        `Malaysian food is a delicious fusion of Malay, Chinese, and Indian flavors. From the spicy and aromatic Nasi Lemak to the sweet mooncake and buttery roti canai, there is something to tantalize every taste bud. Don't miss the chance to explore the bustling street food stalls and night markets for an authentic culinary experience.`,
     },
   ];
 
@@ -51,7 +51,7 @@ export default function HomeScreen() {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollViewContent}>
         <View style={styles.header}>
           <View style={styles.titleContainer}>
-            <Text style={[styles.title, { color: theme.text }]}>Welcome to Malaysia</Text>
+            <Text style={[styles.title, { color: theme.text }]}>Welcome to Malaysia!</Text>
           </View>
         </View>
         <View style={styles.contentContainer}>
@@ -93,7 +93,7 @@ export default function HomeScreen() {
               style={[styles.button, { backgroundColor: theme.tint }]}
               onPress={() => setModalVisible(!modalVisible)}
             >
-              <Text style={[styles.textStyle, { color: theme.background }]}>Close</Text>
+              <Text style={[styles.textStyle, { color: 'black' }]}>Close</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontSize: 36,
+    fontSize: 48,
     fontWeight: 'bold',
     textAlign: 'center',
     paddingHorizontal: 16,

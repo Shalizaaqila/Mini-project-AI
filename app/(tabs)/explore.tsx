@@ -147,21 +147,25 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     marginBottom: 8,
+    marginHorizontal: 16,
   },
   subtitle: {
     fontSize: 16,
     marginBottom: 16,
+    marginHorizontal: 16,
   },
   searchBar: {
     height: 40,
     borderRadius: 8,
     paddingHorizontal: 16,
     marginBottom: 16,
+    marginHorizontal: 16,
   },
   featuredTitle: {
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 12,
+    marginHorizontal: 16,
   },
   destinationItem: {
     flexDirection: 'row',
@@ -172,12 +176,14 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 3,
+    marginHorizontal: 16,
   },
   destinationImage: {
     width: 80,
     height: 80,
     borderRadius: 8,
     marginRight: 12,
+    resizeMode: 'cover',
   },
   destinationText: {
     flex: 1,

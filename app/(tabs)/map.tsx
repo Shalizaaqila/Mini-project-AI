@@ -119,22 +119,25 @@ const styles = StyleSheet.create({
   agendaContainer: {
     position: 'absolute',
     bottom: 20,
-    left: 20,
     right: 20,
     backgroundColor: 'white',
     borderRadius: 10,
     padding: 15,
     elevation: 5,
+    width: 150,
+    height: 220,
+    justifyContent: 'space-around',
   },
   agendaTitle: {
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: 'bold',
     marginBottom: 10,
+    textAlign: 'center',
   },
   agendaItem: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     alignItems: 'center',
-    marginBottom: 5,
+    marginBottom: 15,
   },
   agendaIcon: {
     width: 24,
@@ -143,6 +146,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   agendaText: {
-    fontSize: 16,
+    fontSize: 12,
   },
 });
