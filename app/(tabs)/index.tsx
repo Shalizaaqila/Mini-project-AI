@@ -51,12 +51,12 @@ export default function HomeScreen() {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollViewContent}>
         <View style={styles.header}>
           <View style={styles.titleContainer}>
-            <Text style={[styles.title, { color: '#520520' }]}>Welcome to Malaysia</Text>
+            <Text style={[styles.title, { color: theme.text }]}>Welcome to Malaysia</Text>
           </View>
         </View>
         <View style={styles.contentContainer}>
           {sections.map((section, index) => (
-            <View key={index} style={[styles.section, { backgroundColor: 'rgba(194, 54, 90, 0.1)' }]}>
+            <View key={index} style={[styles.section, { backgroundColor: theme.card }]}>
               <TouchableOpacity
                 onPress={() => handleImagePress(section.title, section.description)}
               >

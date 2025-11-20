@@ -5,32 +5,33 @@
 
 import { Platform } from 'react-native';
 
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
+const tintColorLight = '#FFD700'; // A bright, primary yellow
+const tintColorDark = '#FFFFFF'; // White for text and icons on dark backgrounds
 
 export const Colors = {
   light: {
-    text: '#11181C',    background: '#FFFFFF',
+    text: '#3A3A3A', // Dark grey for readability
+    background: '#FFFACD', // Lemon chiffon for a light, airy background
     tint: tintColorLight,
-    icon: '#687076',
-    tabIconDefault: '#687076',
+    icon: '#B8860B', // Dark goldenrod for icons
+    tabIconDefault: '#B8860B',
     tabIconSelected: tintColorLight,
-    primary: '#007BFF',
-    secondary: '#6C757D',
-    card: '#FFFFFF',
-    tabBar: '#520520',
+    primary: '#FFD700', // Bright yellow for primary actions
+    secondary: '#FFA500', // Orange for secondary actions
+    card: '#FFFFFF', // White for card backgrounds
+    tabBar: '#FFD700', // Bright yellow for the tab bar
   },
   dark: {
-    text: '#ECEDEE',
-    background: '#FFFFFF',
+    text: '#ECEDEE', // Light grey for text on dark backgrounds
+    background: '#282828', // Dark grey for the background
     tint: tintColorDark,
-    icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
+    icon: '#FFD700', // Bright yellow for icons
+    tabIconDefault: '#B8860B', // Dark goldenrod for inactive tab icons
     tabIconSelected: tintColorDark,
-    primary: '#007BFF',
-    secondary: '#6C757D',
-    card: '#2C2C2E',
-    tabBar: '#520520',
+    primary: '#FFD700', // Bright yellow for primary actions
+    secondary: '#FFA500', // Orange for secondary actions
+    card: '#3A3A3A', // Dark grey for card backgrounds
+    tabBar: '#282828', // Dark grey for the tab bar
   },
 };
 

@@ -108,18 +108,18 @@ export default function ExploreScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
-      <Text style={[styles.title, { color: '#520520' }]}>Discover Malaysia</Text>
-      <Text style={[styles.subtitle, { color: '#520520' }]}>Find the best places to visit</Text>
+      <Text style={[styles.title, { color: theme.text }]}>Discover Malaysia</Text>
+      <Text style={[styles.subtitle, { color: theme.text }]}>Find the best places to visit</Text>
       <TextInput
-        style={[styles.searchBar, { backgroundColor: '#42011B', color: theme.text }]}
+        style={[styles.searchBar, { backgroundColor: theme.card, color: theme.text, borderColor: theme.primary, borderWidth: 1 }]}
         placeholder="Search for a destination..."
-        placeholderTextColor={'white'}
+        placeholderTextColor={theme.icon}
       />
-      <Text style={[styles.featuredTitle, { color: '#520520' }]}>Featured Destinations</Text>
+      <Text style={[styles.featuredTitle, { color: theme.text }]}>Featured Destinations</Text>
       <FlatList
         data={featuredDestinations}
         renderItem={({ item }) => (
-          <View style={[styles.destinationItem, { backgroundColor: '#42011B' }]}>
+          <View style={[styles.destinationItem, { backgroundColor: theme.card }]}>
             <Image source={item.image} style={styles.destinationImage} />
             <View style={styles.destinationText}>
               <Text style={[styles.destinationTitle, { color: theme.text }]}>{item.title}</Text>
