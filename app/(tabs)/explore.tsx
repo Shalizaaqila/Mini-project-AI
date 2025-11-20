@@ -119,7 +119,11 @@ export default function ExploreScreen() {
       <FlatList
         data={featuredDestinations}
         renderItem={({ item }) => (
-          <View style={[styles.destinationItem, { backgroundColor: theme.card }]}>
+          <View
+            style={[
+              styles.destinationItem,
+              { backgroundColor: theme.card, shadowColor: theme.shadow },
+            ]}>
             <Image source={item.image} style={styles.destinationImage} />
             <View style={styles.destinationText}>
               <Text style={[styles.destinationTitle, { color: theme.text }]}>{item.title}</Text>
@@ -164,9 +168,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 12,
     marginBottom: 12,
-    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 3,
   },

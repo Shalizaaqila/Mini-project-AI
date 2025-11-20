@@ -5,33 +5,35 @@
 
 import { Platform } from 'react-native';
 
-const tintColorLight = '#FFD700'; // A bright, primary yellow
-const tintColorDark = '#FFFFFF'; // White for text and icons on dark backgrounds
+const tintColorLight = '#B8860B'; // Dark Goldenrod
+const tintColorDark = '#FFD700'; // Gold
 
 export const Colors = {
   light: {
-    text: '#3A3A3A', // Dark grey for readability
-    background: '#FFFACD', // Lemon chiffon for a light, airy background
+    text: '#9E8719',
+    background: '#FFFFFF', // White
     tint: tintColorLight,
-    icon: '#B8860B', // Dark goldenrod for icons
+    icon: '#B8860B', // Dark Goldenrod
     tabIconDefault: '#B8860B',
     tabIconSelected: tintColorLight,
-    primary: '#FFD700', // Bright yellow for primary actions
-    secondary: '#FFA500', // Orange for secondary actions
-    card: '#FFFFFF', // White for card backgrounds
-    tabBar: '#FFD700', // Bright yellow for the tab bar
+    primary: '#FFD700', // Gold
+    secondary: '#FFA500', // Orange
+    card: '#FFFFFF', // White
+    tabBar: '#FFFFFF', // White
+    shadow: '#FFD700', // Gold for shadows
   },
   dark: {
-    text: '#ECEDEE', // Light grey for text on dark backgrounds
-    background: '#282828', // Dark grey for the background
+    text: '#9E8719',
+    background: '#FFFFFF', // White
     tint: tintColorDark,
-    icon: '#FFD700', // Bright yellow for icons
-    tabIconDefault: '#B8860B', // Dark goldenrod for inactive tab icons
+    icon: '#FFD700', // Gold
+    tabIconDefault: '#B8860B', // Dark Goldenrod
     tabIconSelected: tintColorDark,
-    primary: '#FFD700', // Bright yellow for primary actions
-    secondary: '#FFA500', // Orange for secondary actions
-    card: '#3A3A3A', // Dark grey for card backgrounds
-    tabBar: '#282828', // Dark grey for the tab bar
+    primary: '#FFD700', // Gold
+    secondary: '#FFA500', // Orange
+    card: '#1E1E1E', // A bit lighter than background
+    tabBar: '#121212', // Very dark grey
+    shadow: '#FFD700', // Gold for shadows
   },
 };
 

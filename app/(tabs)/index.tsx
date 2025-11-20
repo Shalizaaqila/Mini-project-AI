@@ -56,10 +56,14 @@ export default function HomeScreen() {
         </View>
         <View style={styles.contentContainer}>
           {sections.map((section, index) => (
-            <View key={index} style={[styles.section, { backgroundColor: theme.card }]}>
+            <View
+              key={index}
+              style={[
+                styles.section,
+                { backgroundColor: theme.card, shadowColor: theme.shadow },
+              ]}>
               <TouchableOpacity
-                onPress={() => handleImagePress(section.title, section.description)}
-              >
+                onPress={() => handleImagePress(section.title, section.description)}>
                 <Image source={section.image} style={styles.sectionImage} />
               </TouchableOpacity>
               <Text style={[styles.sectionTitle, { color: theme.text }]}>{section.title}</Text>
@@ -76,8 +80,14 @@ export default function HomeScreen() {
         }}
       >
         <View style={styles.centeredView}>
-          <View style={[styles.modalView, { backgroundColor: theme.card }]}>
-            <Text style={[styles.modalTitle, { color: theme.text }]}>{selectedContent.title}</Text>
+          <View
+            style={[
+              styles.modalView,
+              { backgroundColor: theme.card, shadowColor: theme.shadow },
+            ]}>
+            <Text style={[styles.modalTitle, { color: theme.text }]}>
+              {selectedContent.title}
+            </Text>
             <Text style={[styles.modalText, { color: theme.text }]}>{selectedContent.description}</Text>
             <TouchableOpacity
               style={[styles.button, { backgroundColor: theme.tint }]}
@@ -121,12 +131,11 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     borderRadius: 12,
     padding: 16,
-    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,
     },
-    shadowOpacity: 0.25,
+    shadowOpacity: 0.2,
     shadowRadius: 3.84,
     elevation: 5,
     alignItems: 'center',
@@ -153,12 +162,11 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 35,
     alignItems: 'center',
-    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,
     },
-    shadowOpacity: 0.25,
+    shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 5,
   },
