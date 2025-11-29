@@ -5,37 +5,38 @@
 
 import { Platform } from 'react-native';
 
-const tintColorLight = '#B8860B'; // Dark Goldenrod
-const tintColorDark = '#FFD700'; // Gold
+const tintColorLight = '#FF7E5F';
+
+const lightTheme = {
+  text: '#1F2A37',
+  mutedText: '#4B5563',
+  background: '#FFF8F0',
+  tint: tintColorLight,
+  icon: '#FF8C42',
+  tabIconDefault: '#FF8C42',
+  tabIconSelected: tintColorLight,
+  primary: '#FF7E5F',
+  secondary: '#06B6D4',
+  card: '#FFFFFF',
+  glass: 'rgba(255, 255, 255, 0.85)',
+  border: 'rgba(255, 255, 255, 0.4)',
+  tabBar: '#FFFFFF',
+  shadow: 'rgba(255, 115, 82, 0.35)',
+};
 
 export const Colors = {
-  light: {
-    text: '#9E8719',
-    background: '#FFFFFF', // White
-    tint: tintColorLight,
-    icon: '#B8860B', // Dark Goldenrod
-    tabIconDefault: '#B8860B',
-    tabIconSelected: tintColorLight,
-    primary: '#FFD700', // Gold
-    secondary: '#FFA500', // Orange
-    card: '#FFFFFF', // White
-    tabBar: '#FFFFFF', // White
-    shadow: '#FFD700', // Gold for shadows
-  },
-  dark: {
-    text: '#9E8719',
-    background: '#FFFFFF', // White
-    tint: tintColorDark,
-    icon: '#FFD700', // Gold
-    tabIconDefault: '#B8860B', // Dark Goldenrod
-    tabIconSelected: tintColorDark,
-    primary: '#FFD700', // Gold
-    secondary: '#FFA500', // Orange
-    card: '#1E1E1E', // A bit lighter than background
-    tabBar: '#121212', // Very dark grey
-    shadow: '#FFD700', // Gold for shadows
-  },
+  light: lightTheme,
+  dark: lightTheme,
 };
+
+export const Gradients = {
+  sunrise: ['#FF9A9E', '#FAD0C4'],
+  rainforest: ['#11998E', '#38EF7D'],
+  ocean: ['#4FACFE', '#00F2FE'],
+  dusk: ['#4776E6', '#8E54E9'],
+} as const;
+
+export type GradientStops = (typeof Gradients)[keyof typeof Gradients];
 
 export const Fonts = Platform.select({
   ios: {
