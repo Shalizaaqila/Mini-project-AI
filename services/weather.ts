@@ -41,39 +41,71 @@ const CODE_DESCRIPTIONS: Record<number, string> = {
   99: 'Severe thunder + hail',
 };
 
+const WEATHER_CACHE_DURATION_MS = 15 * 60 * 1000; // 15 minutes
+const weatherCache = new Map<
+  string,
+  { timestamp: number; summary: WeatherSummary }
+>();
+const inflightRequests = new Map<string, Promise<WeatherSummary | null>>();
+
+function cacheKey(lat: number, lon: number) {
+  // Round so nearby cards share a forecast
+  return `${lat.toFixed(2)},${lon.toFixed(2)}`;
+}
+
 export async function fetchWeatherByCoords(
   latitude: number,
   longitude: number,
 ): Promise<WeatherSummary | null> {
-  try {
-    const params = new URLSearchParams({
-      latitude: String(latitude),
-      longitude: String(longitude),
-      current: 'temperature_2m,weather_code',
-      timezone: 'auto',
-    });
-    const response = await fetch(`https://api.open-meteo.com/v1/forecast?${params.toString()}`);
-
-    if (!response.ok) {
-      console.warn('Failed to load weather data', response.statusText);
-      return null;
-    }
-
-    const data = await response.json();
-    const weatherCode = data?.current?.weather_code;
-    const temperature = data?.current?.temperature_2m;
-
-    if (typeof weatherCode !== 'number' || typeof temperature !== 'number') {
-      return null;
-    }
-
-    return {
-      temperature,
-      weatherCode,
-      description: CODE_DESCRIPTIONS[weatherCode] ?? 'Weather update',
-    };
-  } catch (error) {
-    console.warn('Weather fetch error', error);
-    return null;
+  const key = cacheKey(latitude, longitude);
+  const cached = weatherCache.get(key);
+  if (cached && Date.now() - cached.timestamp < WEATHER_CACHE_DURATION_MS) {
+    return cached.summary;
   }
+
+  const inflight = inflightRequests.get(key);
+  if (inflight) {
+    return inflight;
+  }
+
+  const requestPromise = (async () => {
+    try {
+      const params = new URLSearchParams({
+        latitude: String(latitude),
+        longitude: String(longitude),
+        current: 'temperature_2m,weather_code',
+        timezone: 'auto',
+      });
+      const response = await fetch(`https://api.open-meteo.com/v1/forecast?${params.toString()}`);
+
+      if (!response.ok) {
+        console.warn('Failed to load weather data', response.statusText);
+        return null;
+      }
+
+      const data = await response.json();
+      const weatherCode = data?.current?.weather_code;
+      const temperature = data?.current?.temperature_2m;
+
+      if (typeof weatherCode !== 'number' || typeof temperature !== 'number') {
+        return null;
+      }
+
+      const summary: WeatherSummary = {
+        temperature,
+        weatherCode,
+        description: CODE_DESCRIPTIONS[weatherCode] ?? 'Weather update',
+      };
+      weatherCache.set(key, { timestamp: Date.now(), summary });
+      return summary;
+    } catch (error) {
+      console.warn('Weather fetch error', error);
+      return null;
+    } finally {
+      inflightRequests.delete(key);
+    }
+  })();
+
+  inflightRequests.set(key, requestPromise);
+  return requestPromise;
 }
