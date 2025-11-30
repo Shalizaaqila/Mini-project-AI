@@ -4,13 +4,11 @@ import { createItineraryICS, generateMalaysiaItinerary, type ItineraryDay, type 
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useCallback, useMemo, useState } from 'react';
+
 import {
   ActivityIndicator,
   Alert,
-  FlatList,
-  Modal,
   Platform,
-  SafeAreaView,
   ScrollView,
   Share,
   StyleSheet,
@@ -19,7 +17,9 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import * as FileSystem from 'expo-file-system/legacy';
+import { printToFileAsync } from 'expo-print';
 
 const travelStyles: Array<{ id: ItineraryRequest['travelStyle']; label: string; icon: keyof typeof Ionicons.glyphMap }> = [
   { id: 'mixed', label: 'Mixed', icon: 'sparkles-outline' },
@@ -35,6 +35,246 @@ const budgetLevels: Array<{ id: ItineraryRequest['budgetLevel']; label: string }
   { id: 'luxury', label: 'Luxury' },
 ];
 
+const escapeHtml = (value: string) =>
+  value.replace(/[&<>"']/g, (char) => {
+    switch (char) {
+      case '&':
+        return '&amp;';
+      case '<':
+        return '&lt;';
+      case '>':
+        return '&gt;';
+      case '"':
+        return '&quot;';
+      case "'":
+        return '&#39;';
+      default:
+        return char;
+    }
+  });
+
+const formatDateInput = (date: Date) => {
+  if (Number.isNaN(date.getTime())) return '';
+  const year = date.getFullYear();
+  const month = `${date.getMonth() + 1}`.padStart(2, '0');
+  const day = `${date.getDate()}`.padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const buildItineraryPdfHtml = (options: { itinerary: ItineraryDay[]; startingCity: string; tripStartDate: string }) => {
+  const { itinerary, startingCity, tripStartDate } = options;
+  const daySections = itinerary
+    .map((day) => {
+      const activities = day.activities
+        .map(
+          (activity) => `
+            <li class="activity">
+              <div class="activity-time">${escapeHtml(activity.time)}</div>
+              <div>
+                <div class="activity-name">${escapeHtml(activity.name)}</div>
+                <div class="activity-details">${escapeHtml(activity.details)}</div>
+              </div>
+            </li>
+          `
+        )
+        .join('');
+      const tips = day.tips?.length
+        ? `<div class="tips">
+            <div class="pill pill-muted">Tips</div>
+            <ul>
+              ${day.tips.map((tip) => `<li>${escapeHtml(tip)}</li>`).join('')}
+            </ul>
+          </div>`
+        : '';
+      return `
+        <section class="day-card">
+          <header class="day-header">
+            <div class="pill">Day ${day.day}</div>
+            <h2>${escapeHtml(day.title)}</h2>
+          </header>
+          <p class="summary">${escapeHtml(day.summary)}</p>
+          <ul class="activities">${activities}</ul>
+          ${tips}
+        </section>
+      `;
+    })
+    .join('');
+
+  const heroSubtitle = `Start date: ${escapeHtml(tripStartDate || 'TBD')} • ${itinerary.length} day${
+    itinerary.length === 1 ? '' : 's'
+  }`;
+
+  return `
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="utf-8" />
+        <style>
+          * {
+            box-sizing: border-box;
+          }
+          body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #0f172a;
+            color: #0f172a;
+          }
+          .page {
+            padding: 32px;
+            background: linear-gradient(135deg, #0f172a 0%, #0f172a 25%, #f8fafc 25%, #f8fafc 100%);
+            min-height: 100vh;
+          }
+          .hero {
+            background: linear-gradient(120deg, #2563eb, #0ea5e9);
+            border-radius: 28px;
+            padding: 24px;
+            color: #ffffff;
+            margin-bottom: 24px;
+            box-shadow: 0 15px 35px rgba(37, 99, 235, 0.35);
+          }
+          .hero h1 {
+            margin: 0;
+            font-size: 32px;
+            letter-spacing: -0.5px;
+          }
+          .hero p {
+            margin: 8px 0 0;
+            font-size: 15px;
+            opacity: 0.9;
+          }
+          .hero .meta-row {
+            margin-top: 18px;
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+          }
+          .pill {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(6px);
+            border-radius: 999px;
+            padding: 6px 14px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+          }
+          .pill-muted {
+            background: rgba(15, 23, 42, 0.08);
+            color: #0f172a;
+          }
+          .content {
+            background: #ffffff;
+            border-radius: 28px;
+            padding: 28px;
+            box-shadow: 0 20px 60px rgba(15, 23, 42, 0.15);
+          }
+          .day-card {
+            border-radius: 22px;
+            padding: 18px;
+            border: 1px solid rgba(15, 23, 42, 0.06);
+            margin-bottom: 18px;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+          }
+          .day-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+          }
+          .day-header h2 {
+            margin: 0;
+            font-size: 22px;
+          }
+          .summary {
+            margin: 0;
+            color: #475569;
+            line-height: 1.5;
+          }
+          .activities {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0 0;
+          }
+          .activities .activity {
+            display: grid;
+            grid-template-columns: 110px 1fr;
+            gap: 14px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+          }
+          .activities .activity:first-child {
+            padding-top: 0;
+          }
+          .activities .activity:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+          }
+          .activity:last-child {
+            padding-bottom: 0;
+          }
+          .activity-time {
+            font-weight: 600;
+            color: #0ea5e9;
+            font-size: 14px;
+          }
+          .activity-name {
+            font-weight: 600;
+            font-size: 16px;
+            color: #0f172a;
+          }
+          .activity-details {
+            color: #475569;
+            font-size: 13px;
+            margin-top: 4px;
+            line-height: 1.4;
+          }
+          .tips {
+            margin-top: 18px;
+          }
+          .tips ul {
+            margin: 10px 0 0 18px;
+            color: #475569;
+          }
+          @media print {
+            body {
+              background: #f8fafc;
+            }
+            .page {
+              padding: 24px;
+              background: transparent;
+            }
+            .hero {
+              page-break-inside: avoid;
+            }
+            .day-card {
+              page-break-inside: avoid;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="page">
+          <section class="hero">
+            <div class="pill">Malaysia Tour Designer</div>
+            <h1>${escapeHtml(startingCity)} Itinerary</h1>
+            <p>${heroSubtitle}</p>
+            <div class="meta-row">
+              <span class="pill">Customized travel plan</span>
+              <span class="pill">Food • Culture • Nature</span>
+            </div>
+          </section>
+          <section class="content">
+            ${daySections}
+          </section>
+        </div>
+      </body>
+    </html>
+  `;
+};
+
 export default function ItineraryScreen() {
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme ?? 'light'];
@@ -44,9 +284,10 @@ export default function ItineraryScreen() {
   const [budgetLevel, setBudgetLevel] = useState<ItineraryRequest['budgetLevel']>('midrange');
   const [mustVisitInput, setMustVisitInput] = useState('');
   const [mustVisit, setMustVisit] = useState<string[]>([]);
-  const [tripStartDate, setTripStartDate] = useState('2025-01-05');
+  const [tripStartDate, setTripStartDate] = useState(() => formatDateInput(new Date()));
   const [isGenerating, setIsGenerating] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const [isExportingPdf, setIsExportingPdf] = useState(false);
   const [itinerary, setItinerary] = useState<ItineraryDay[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -121,20 +362,46 @@ export default function ItineraryScreen() {
     }
   }, [itinerary, tripStartDate, startingCity]);
 
+  const handleExportPdf = useCallback(async () => {
+    if (!itinerary.length) {
+      Alert.alert('No itinerary', 'Generate an itinerary before exporting the PDF.');
+      return;
+    }
+    try {
+      setIsExportingPdf(true);
+      const html = buildItineraryPdfHtml({ itinerary, startingCity, tripStartDate });
+      const { uri } = await printToFileAsync({ html });
+      if (Platform.OS === 'web') {
+        Alert.alert('PDF ready', 'Download the generated itinerary PDF from the browser.');
+      } else {
+        await Share.share({
+          url: uri,
+          message: `Trip itinerary for ${startingCity}`,
+          title: 'Share itinerary PDF',
+        });
+      }
+    } catch (error) {
+      console.warn('Itinerary PDF export failed', error);
+      Alert.alert('Export failed', 'Unable to create the itinerary PDF right now.');
+    } finally {
+      setIsExportingPdf(false);
+    }
+  }, [itinerary, startingCity, tripStartDate]);
+
   const headerComponent = (
     <View style={styles.formWrapper}>
       <LinearGradient colors={Gradients.sunrise} style={styles.heroCard}>
         <View style={{ flex: 1 }}>
           <Text style={styles.heroEyebrow}>Malaysia Tour Designer</Text>
-          <Text style={styles.heroTitle}>Build your custom itinerary</Text>
-          <Text style={styles.heroSubtitle}>Malaysia Tour Itinerary Designer Agent • curated JSON plans</Text>
+          <Text style={styles.heroTitle}>Build your itinerary</Text>
+          <Text style={styles.heroSubtitle}>Malaysia Tour Itinerary Agent</Text>
           <View style={styles.heroPillsRow}>
             <View style={styles.heroPill}>
-              <Ionicons name="sparkles" size={14} color="#F8FAFC" />
+              <Ionicons name="sparkles" size={14} color="#007dfaff" />
               <Text style={styles.heroPillText}>Food • Culture • Nature</Text>
             </View>
             <View style={styles.heroPill}>
-              <Ionicons name="shield-checkmark-outline" size={14} color="#F8FAFC" />
+              <Ionicons name="shield-checkmark-outline" size={14} color="#00ffb3ff" />
               <Text style={styles.heroPillText}>AI powered</Text>
             </View>
           </View>
@@ -163,9 +430,11 @@ export default function ItineraryScreen() {
               style={[styles.input, { borderColor: theme.border, color: theme.text, backgroundColor: theme.background }]}
               value={tripStartDate}
               onChangeText={setTripStartDate}
-              placeholder="2025-01-05"
+              placeholder="YYYY-MM-DD"
               placeholderTextColor={theme.mutedText}
               keyboardType="numbers-and-punctuation"
+              autoCorrect={false}
+              autoCapitalize="none"
             />
           </View>
         </View>
@@ -305,12 +574,32 @@ export default function ItineraryScreen() {
           )}
         </LinearGradient>
       </TouchableOpacity>
+      <TouchableOpacity
+        onPress={handleExportPdf}
+        disabled={!itinerary.length || isExportingPdf}
+        activeOpacity={0.9}
+        style={[styles.snapshotButton, { opacity: itinerary.length ? 1 : 0.6 }]}
+      >
+        <LinearGradient colors={Gradients.ocean} style={styles.generateButtonGradient}>
+          {isExportingPdf ? (
+            <ActivityIndicator color="#FFFFFF" />
+          ) : (
+            <>
+              <Ionicons name="document-text" size={18} color="#FFFFFF" />
+              <Text style={styles.generateButtonText}>Export itinerary PDF</Text>
+            </>
+          )}
+        </LinearGradient>
+      </TouchableOpacity>
       <Text style={[styles.helperText, { color: theme.mutedText }]}>Sample prompt: "Hi! I'm going to Kuala Lumpur for 3 days. I love food, shopping, and taking photos."</Text>
     </View>
   );
 
-  const renderDay = ({ item }: { item: ItineraryDay }) => (
-    <View style={[styles.dayCard, { backgroundColor: theme.card, shadowColor: theme.shadow }]}> 
+  const renderDay = (item: ItineraryDay) => (
+    <View
+      key={`day-${item.day}-${item.title}`}
+      style={[styles.dayCard, { backgroundColor: theme.card, shadowColor: theme.shadow }]}
+    >
       <LinearGradient colors={Gradients.ocean} style={styles.dayCardHeader}>
         <Text style={styles.dayBadgeText}>Day {item.day}</Text>
         <Text style={styles.dayTitle}>{item.title}</Text>
@@ -352,33 +641,32 @@ export default function ItineraryScreen() {
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]}>
-      <FlatList
-        data={itinerary}
-        keyExtractor={(item) => `day-${item.day}-${item.title}`}
-        renderItem={renderDay}
+      <ScrollView
         contentContainerStyle={styles.listContent}
-        ListHeaderComponent={headerComponent}
-        ListEmptyComponent={
-          !isGenerating ? (
-            <View style={styles.emptyState}>
-              <Ionicons name="map-outline" size={48} color={theme.mutedText} />
-              <Text style={[styles.emptyStateTitle, { color: theme.text }]}>Your itinerary will appear here</Text>
-              <Text style={[styles.emptyStateSubtitle, { color: theme.mutedText }]}>
-                Fill in the details above and tap &quot;Design itinerary&quot;
-              </Text>
-            </View>
-          ) : null
-        }
-      />
+        showsVerticalScrollIndicator={false}
+      >
+        {headerComponent}
+        {itinerary.length
+          ? itinerary.map((item) => renderDay(item))
+          : !isGenerating && (
+              <View style={styles.emptyState}>
+                <Ionicons name="map-outline" size={48} color={theme.mutedText} />
+                <Text style={[styles.emptyStateTitle, { color: theme.text }]}>Your itinerary will appear here</Text>
+                <Text style={[styles.emptyStateSubtitle, { color: theme.mutedText }]}>
+                  Fill in the details above and tap &quot;Design itinerary&quot;
+                </Text>
+              </View>
+            )}
+      </ScrollView>
     </SafeAreaView>
   );
 }
-
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
   listContent: {
+    paddingTop: 20,
     paddingBottom: 80,
     paddingHorizontal: 20,
     gap: 20,
@@ -575,6 +863,10 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   exportButton: {
+    borderRadius: 18,
+    overflow: 'hidden',
+  },
+  snapshotButton: {
     borderRadius: 18,
     overflow: 'hidden',
   },
