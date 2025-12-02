@@ -4,6 +4,7 @@ import { useWeatherBatch } from '@/hooks/use-weather';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Location from 'expo-location';
+import { useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import {
   Image,
@@ -192,6 +193,8 @@ export default function HomeScreen() {
   const { weatherMap } = useWeatherBatch(weatherRequests, true);
   const heroWeather = weatherMap[currentLocationRequest.id];
 
+  const router = useRouter();
+
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollViewContent}>
@@ -203,7 +206,11 @@ export default function HomeScreen() {
               <Text style={styles.heroSubtitle}>
                 Coastal sunsets, rainforest adventures, and vibrant cities await.
               </Text>
-              <TouchableOpacity style={styles.heroButton} activeOpacity={0.85}>
+              <TouchableOpacity
+                style={styles.heroButton}
+                activeOpacity={0.85}
+                onPress={() => router.push('/itinerary')}
+              >
                 <LinearGradient colors={Gradients.rainforest} style={styles.heroButtonGradient}>
                   <Text style={styles.heroButtonText}>Plan Your Journey</Text>
                 </LinearGradient>
