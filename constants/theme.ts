@@ -30,7 +30,8 @@ export const Colors = {
 };
 
 export const Gradients = {
-  sunrise: ['#FF9A9E', '#FAD0C4'],
+  sunrise: ['#f78d92ff', '#f493dfff'],
+  sunset: ['#FFD700', '#FFA500'],
   rainforest: ['#11998E', '#38EF7D'],
   ocean: ['#4FACFE', '#00F2FE'],
   dusk: ['#4776E6', '#8E54E9'],

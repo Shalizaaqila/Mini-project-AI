@@ -32,13 +32,6 @@ type Story = {
   };
 };
 
-type QuickEscape = {
-  title: string;
-  description: string;
-  icon: IconName;
-  gradient: GradientStops;
-};
-
 type JourneyCard = {
   title: string;
   description: string;
@@ -85,27 +78,6 @@ const stories: Story[] = [
       `Malaysian food is a delicious fusion of Malay, Chinese, and Indian flavors. From the spicy and aromatic Nasi Lemak to the sweet mooncake and buttery roti canai, there is something to tantalize every taste bud. Don't miss the chance to explore the bustling street food stalls and night markets for an authentic culinary experience.`,
     tagline: 'Night markets, kopi breaks, and hawker feasts.',
     coordinates: { latitude: 5.4141, longitude: 100.3288 },
-  },
-];
-
-const quickEscapes: QuickEscape[] = [
-  {
-    title: 'Island Hopping',
-    description: 'Langkawi • Redang • Tioman',
-    icon: 'water-outline',
-    gradient: Gradients.ocean,
-  },
-  {
-    title: 'Rainforest Retreats',
-    description: 'Borneo • Taman Negara',
-    icon: 'leaf-outline',
-    gradient: Gradients.rainforest,
-  },
-  {
-    title: 'City Weekends',
-    description: 'KL • Penang • Johor',
-    icon: 'business-outline',
-    gradient: Gradients.dusk,
   },
 ];
 
@@ -211,7 +183,7 @@ export default function HomeScreen() {
                 activeOpacity={0.85}
                 onPress={() => router.push('/itinerary')}
               >
-                <LinearGradient colors={Gradients.rainforest} style={styles.heroButtonGradient}>
+                <LinearGradient colors={Gradients.sunset} style={styles.heroButtonGradient}>
                   <Text style={styles.heroButtonText}>Plan Your Journey</Text>
                 </LinearGradient>
               </TouchableOpacity>
@@ -239,22 +211,6 @@ export default function HomeScreen() {
             ))}
           </View>
         </View>
-
-        <View style={styles.sectionHeader}>
-          <Text style={[styles.sectionTitle, { color: theme.text }]}>Quick Escapes</Text>
-          <Text style={[styles.sectionSubtitle, { color: theme.mutedText }]}>Tap to unlock curated inspiration</Text>
-        </View>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.quickScroll}>
-          {quickEscapes.map((escape) => (
-            <TouchableOpacity key={escape.title} activeOpacity={0.85}>
-              <LinearGradient colors={escape.gradient} style={styles.quickCard}>
-                <Ionicons name={escape.icon} size={26} color="#FFFFFF" />
-                <Text style={styles.quickCardTitle}>{escape.title}</Text>
-                <Text style={styles.quickCardText}>{escape.description}</Text>
-              </LinearGradient>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
 
         <View style={styles.sectionHeader}>
           <Text style={[styles.sectionTitle, { color: theme.text }]}>Cultural Stories</Text>
@@ -372,7 +328,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   heroTitle: {
-    fontSize: 32,
+    fontSize: 30,
     fontWeight: '800',
     color: '#FFFFFF',
     marginTop: 8,
